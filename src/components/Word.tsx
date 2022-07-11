@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 interface IProps {
   word: IWord;
@@ -31,7 +32,7 @@ export default function Word({ word: w }: IProps) {
         ...word,
         isDone: !isDone,
       }),
-    }).then(res => {
+    }).then((res) => {
       if (res.ok) {
         setIsDone(!isDone);
       }
@@ -39,18 +40,23 @@ export default function Word({ word: w }: IProps) {
   }
 
   function del() {
-    if (window.confirm("삭제 하시겠습니까?")) {
-      fetch(`http://localhost:3001/words/${word.id}`, {
-        method: "DELETE",
-      }).then(res => {
-        if (res.ok) {
-          setWord({
-            ...word,
-            id: -1,
-          });
-        }
-      });
-    }
+    Swal.fire({
+      title: "삭제하시겠습니까?",
+      showDenyButton: true,
+      confirmButtonText: "네",
+      denyButtonText: `아니요`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("삭제되었습니다.", "", "success");
+        fetch(`http://localhost:3001/words/${word.id}`, {
+          method: "DELETE",
+        }).then((res) => {
+          if (res.ok) {
+            setWord({ ...word, id: -1 });
+          }
+        });
+      }
+    });
   }
 
   if (word.id === -1) {
